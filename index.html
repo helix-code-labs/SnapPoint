@@ -442,7 +442,8 @@
                                 <span className="inline-block px-4 py-1.5 rounded-full bg-teal-50 text-brand-teal text-xs font-bold tracking-wider mb-6 border border-teal-100 uppercase">
                                     For Solopreneur Coffee Shops
                                 </span>
-                                <h1 className="text-4xl lg:text-6xl font-bold text-stone-900 leading-tight mb-6">
+                                {/* Changed leading-tight to leading-normal to fix Thai text overlapping */}
+                                <h1 className="text-4xl lg:text-6xl font-bold text-stone-900 leading-normal mb-6">
                                     เปลี่ยน 'ขาจร' เป็น 'ขาประจำ'<br/>
                                     <span className="text-brand-teal">โดยที่คุณไม่ต้องขยับตัว</span>
                                 </h1>
@@ -575,71 +576,107 @@
 
         const Pricing = () => (
             <section id="pricing" className="py-24 bg-white relative">
-                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl font-bold text-stone-900">ลงทุนน้อยกว่า... แก้วที่ทิ้งต่อเดือน</h2>
-                        <p className="text-stone-500 mt-4">เริ่มต้นเบาๆ จ่ายเท่าที่ใช้ (Pay as you grow)</p>
+                        <p className="text-stone-500 mt-4">เริ่มต้นฟรี แล้วจ่ายเมื่อร้านโต (Pay as you grow)</p>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-8 items-start">
-                        {/* Starter Plan */}
-                        <div className="flex-1 w-full bg-white border-2 border-brand-teal rounded-3xl p-8 shadow-xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-                            <div className="absolute top-0 right-0 bg-brand-teal text-white text-xs font-bold px-4 py-1 rounded-bl-xl">ขายดี</div>
-                            <h3 className="text-xl font-bold text-stone-800 mb-2">Starter Plan</h3>
-                            <p className="text-sm text-stone-500 mb-6">สำหรับร้านเริ่มต้น 1 สาขา</p>
+                    <div className="grid md:grid-cols-3 gap-6 items-start">
+                        
+                        {/* Free Tier */}
+                        <div className="w-full bg-white border border-stone-200 rounded-3xl p-8 hover:shadow-lg transition-all relative">
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Free Tier</h3>
+                            <p className="text-sm text-stone-500 mb-6">สำหรับทดลองใช้ / ร้านขนาดเล็ก</p>
                             
                             <div className="flex items-baseline gap-1 mb-8">
-                                <span className="text-5xl font-bold text-stone-900">199</span>
+                                <span className="text-5xl font-bold text-stone-900">0</span>
+                                <span className="text-stone-500 font-medium">บาท / ตลอดชีพ</span>
+                            </div>
+
+                            <div className="space-y-4 mb-8">
+                                <div className="flex items-center gap-3 text-sm text-stone-600">
+                                    <CheckCircle className="w-5 h-5 text-stone-400 flex-shrink-0" />
+                                    <span>สมาชิกสูงสุด <strong>50 คน</strong></span>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-stone-600">
+                                    <CheckCircle className="w-5 h-5 text-stone-400 flex-shrink-0" />
+                                    <span>ระบบสะสมแต้มพื้นฐาน</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-stone-400">
+                                    <XCircle className="w-5 h-5 text-stone-200 flex-shrink-0" />
+                                    <span>เปลี่ยนธีม/โลโก้ไม่ได้</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-stone-400">
+                                    <XCircle className="w-5 h-5 text-stone-200 flex-shrink-0" />
+                                    <span>ไม่มี Dashboard</span>
+                                </div>
+                            </div>
+
+                            <button className="w-full py-3 bg-stone-100 text-stone-600 hover:bg-stone-200 rounded-xl font-bold transition">
+                                เริ่มใช้งานฟรีทันที
+                            </button>
+                        </div>
+
+                        {/* Starter Plan */}
+                        <div className="w-full bg-white border-2 border-brand-teal rounded-3xl p-8 shadow-xl relative overflow-hidden transform md:-translate-y-4">
+                            <div className="absolute top-0 right-0 bg-brand-teal text-white text-xs font-bold px-4 py-1 rounded-bl-xl">แนะนำ</div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Starter Plan</h3>
+                            <p className="text-sm text-stone-500 mb-6">สำหรับร้านที่เอาจริง 1 สาขา</p>
+                            
+                            <div className="flex items-baseline gap-1 mb-8">
+                                <span className="text-5xl font-bold text-brand-teal">199</span>
                                 <span className="text-stone-500 font-medium">บาท / เดือน</span>
                             </div>
 
                             <div className="space-y-4 mb-8">
                                 {[
-                                    "สแกนสะสมแต้มได้ไม่จำกัด",
                                     "สมาชิกสูงสุด 1,000 คน",
+                                    "สแกนสะสมแต้มได้ไม่จำกัด",
                                     "ระบบกันโกง (Cooldown)",
-                                    "หน้าบัตร Digital มาตรฐาน",
-                                    "Dashboard ดูยอดรายวัน"
+                                    "Dashboard ดูยอดขาย/สมาชิก",
+                                    "ปลดล็อก Add-ons ทั้งหมด"
                                 ].map((feat, i) => (
-                                    <div key={i} className="flex items-center gap-3 text-sm text-stone-600">
-                                        <CheckCircle className="w-5 h-5 text-brand-teal flex-shrink-0" />
+                                    <div key={i} className="flex items-center gap-3 text-sm text-stone-800 font-medium">
+                                        <div className="bg-teal-50 text-brand-teal p-0.5 rounded-full">
+                                            <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                                        </div>
                                         {feat}
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="bg-stone-50 p-4 rounded-xl mb-8 border border-stone-100 text-center">
-                                <p className="text-xs text-stone-500">💰 ถูกกว่าจ้างเด็กพาร์ทไทม์ 1 ชั่วโมง</p>
-                                <p className="text-xs text-stone-500">🏷️ ถูกกว่าค่าพิมพ์บัตรกระดาษ</p>
+                            <div className="bg-stone-50 p-4 rounded-xl mb-6 border border-stone-100 text-center">
+                                <p className="text-xs text-stone-500">💰 ถูกกว่าจ้างเด็กพาร์ทไทม์ 1 ชม.</p>
                             </div>
 
-                            <button className="w-full py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-stone-800 transition shadow-lg">
-                                เริ่มต้นใช้งาน 199.-
+                            <button className="w-full py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-stone-800 transition shadow-lg text-lg">
+                                อัปเกรด 199.-
                             </button>
                         </div>
 
                         {/* Add-ons */}
-                        <div className="flex-1 w-full bg-stone-50 rounded-3xl p-8 border border-stone-200">
-                            <h3 className="text-xl font-bold text-stone-800 mb-4">Add-ons (เลือกซื้อเพิ่มได้)</h3>
-                            <p className="text-sm text-stone-500 mb-8">ไม่บังคับซื้อ จ่ายเพิ่มเฉพาะฟีเจอร์ที่อยากได้</p>
+                        <div className="w-full bg-stone-50 rounded-3xl p-8 border border-stone-200 h-full">
+                            <h3 className="text-xl font-bold text-stone-800 mb-4">Add-ons Store</h3>
+                            <p className="text-sm text-stone-500 mb-6">จ่ายเพิ่มเฉพาะฟีเจอร์ที่อยากได้</p>
                             
                             <div className="space-y-3">
                                 {[
-                                    { name: "Custom Icon & Theme", price: "+49", desc: "เปลี่ยนรูปตรายาง/สีธีม" },
-                                    { name: "Remove Branding", price: "+99", desc: "ลบโลโก้ SnapPoint" },
-                                    { name: "Export Data (Excel)", price: "+129", desc: "ดึงรายชื่อลูกค้า" },
-                                    { name: "Birthday Rewards", price: "+69", desc: "คูปองวันเกิดอัตโนมัติ" }
+                                    { name: "Custom Branding", price: "+49", desc: "เปลี่ยนรูปไอคอน/สีธีมร้าน" },
+                                    { name: "Remove Logo", price: "+99", desc: "ลบโลโก้ SnapPoint ออก" },
+                                    { name: "Membership Tiers", price: "+119", desc: "ระบบระดับสมาชิก (Silver/Gold)" },
+                                    { name: "Data Export", price: "+129", desc: "ดึงรายชื่อลูกค้าเป็น Excel" }
                                 ].map((addon, i) => (
-                                    <div key={i} className="flex justify-between items-center bg-white p-4 rounded-xl border border-stone-100 shadow-sm hover:border-brand-teal/50 transition-colors cursor-pointer">
+                                    <div key={i} className="flex justify-between items-center bg-white p-3 rounded-xl border border-stone-100 shadow-sm hover:border-brand-teal/50 transition-colors cursor-pointer group">
                                         <div>
-                                            <p className="font-bold text-stone-700 text-sm">{addon.name}</p>
-                                            <p className="text-xs text-stone-400">{addon.desc}</p>
+                                            <p className="font-bold text-stone-700 text-sm group-hover:text-brand-teal transition-colors">{addon.name}</p>
+                                            <p className="text-[10px] text-stone-400">{addon.desc}</p>
                                         </div>
-                                        <span className="text-sm font-bold text-brand-teal bg-teal-50 px-2 py-1 rounded">{addon.price} บ.</span>
+                                        <span className="text-xs font-bold text-brand-teal bg-teal-50 px-2 py-1 rounded">{addon.price}</span>
                                     </div>
                                 ))}
                             </div>
-                            <p className="text-center text-xs text-stone-400 mt-6">* เลือกซื้อได้ภายหลังในระบบหลังบ้าน</p>
+                            <p className="text-center text-[10px] text-stone-400 mt-6">* ราคาต่อเดือน / ซื้อได้ในระบบหลังบ้าน</p>
                         </div>
                     </div>
                  </div>
