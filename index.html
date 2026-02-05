@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SnapPoint - ระบบสะสมแต้ม Zero-Touch สำหรับร้านกาแฟ</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            scroll-behavior: smooth;
+            background-color: #fafaf9; /* stone-50 */
+            color: #1c1917; /* stone-900 */
+        }
+        .font-brand { font-family: 'Fredoka', sans-serif; }
+        
+        /* Custom Utilities */
+        .text-teal-deep { color: #0f766e; }
+        .bg-teal-deep { background-color: #0f766e; }
+        
+        .bg-paper {
+            background-image: radial-gradient(#d6d3d1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+    
+    <!-- Tailwind Config for Custom Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            teal: '#0f766e',
+                            stone: '#fafaf9',
+                            amber: '#f59e0b',
+                            dark: '#1c1917'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { motion, AnimatePresence, useScroll, useTransform } = window.Motion;
+        
+        // --- ICONS (Lucide) ---
+        const CheckCircle = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+        const XCircle = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>;
+        const Coffee = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>;
+        const Scan = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>;
+        const ShieldCheck = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>;
+        const Smartphone = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>;
+        const Gift = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>;
+        const History = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>;
+
+        // --- COMPONENTS ---
+
+        const Navbar = () => (
+            <nav className="fixed w-full z-[999] bg-white/80 backdrop-blur-md border-b border-stone-200">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
+                            <div className="w-8 h-8 bg-brand-teal rounded-lg flex items-center justify-center text-white font-brand font-bold text-xl shadow-md">S</div>
+                            <span className="font-brand text-xl font-bold text-stone-800 tracking-tight">SnapPoint</span>
+                        </div>
+                        <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-stone-600">
+                            <a href="#features" className="hover:text-brand-teal transition">ฟีเจอร์</a>
+                            <a href="#how-it-works" className="hover:text-brand-teal transition">การทำงาน</a>
+                            <a href="#pricing" className="hover:text-brand-teal transition">ราคา</a>
+                        </div>
+                        <button 
+                            onClick={() => document.getElementById('pricing').scrollIntoView()}
+                            className="bg-brand-dark hover:bg-stone-700 text-white px-5 py-2 rounded-full text-sm font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                        >
+                            ทดลองใช้ฟรี
+                        </button>
+                    </div>
+                </div>
+            </nav>
+        );
+
+        // --- DEMO APP COMPONENT (LIFF Style) ---
+        const DemoApp = () => {
+            const [stamps, setStamps] = useState(3);
+            const [showNoti, setShowNoti] = useState(false);
+            const [notiText, setNotiText] = useState("");
+            const [view, setView] = useState('card'); // 'card' or 'redeem'
+            const [myCoupons, setMyCoupons] = useState([]); // List of coupons
+            
+            useEffect(() => {
+                let isMounted = true;
+                const runLoop = async () => {
+                    while(isMounted) {
+                        // --- Phase 1: 3 -> 5 (Get Small Coupon) ---
+                        for(let i=3; i<=5; i++) {
+                            if(!isMounted) return;
+                            setStamps(i);
+                            
+                            if (i === 5) {
+                                setShowNoti(true);
+                                setNotiText("🎉 ได้รับคูปองส่วนลด 5.-");
+                                // Add coupon to list
+                                setMyCoupons(prev => [...prev, { id: 5, name: 'ส่วนลด 5 บาท', desc: 'เมื่อครบ 5 แต้ม' }]);
+                                await new Promise(r => setTimeout(r, 2000));
+                                setShowNoti(false);
+                            } else if (i > 3) {
+                                setShowNoti(true);
+                                setNotiText(`เช็คอินสำเร็จ! (ครั้งที่ ${i}/10)`);
+                                await new Promise(r => setTimeout(r, 1000));
+                                setShowNoti(false);
+                            } else {
+                                await new Promise(r => setTimeout(r, 800));
+                            }
+                        }
+
+                        // Continue collecting 5 -> 10
+                        await new Promise(r => setTimeout(r, 800));
+
+                        // --- Phase 2: 5 -> 10 (Get Big Coupon) ---
+                        for(let i=6; i<=10; i++) {
+                            if(!isMounted) return;
+                            setStamps(i);
+                            
+                            if (i === 10) {
+                                setShowNoti(true);
+                                setNotiText("🎉 ได้รับคูปองส่วนลด 10.-");
+                                // Add coupon to list
+                                setMyCoupons(prev => [...prev, { id: 10, name: 'ส่วนลด 10 บาท', desc: 'เมื่อครบ 10 แต้ม' }]);
+                                await new Promise(r => setTimeout(r, 2500));
+                                setShowNoti(false);
+                            } else {
+                                setShowNoti(true);
+                                setNotiText(`เช็คอินสำเร็จ! (ครั้งที่ ${i}/10)`);
+                                await new Promise(r => setTimeout(r, 1000));
+                                setShowNoti(false);
+                            }
+                        }
+
+                        // Reset stamps (Card full -> Start new card)
+                        // But keep coupons
+                        setStamps(0);
+                        
+                        // --- Phase 3: Simulate User Clicking "Use Coupon" ---
+                        await new Promise(r => setTimeout(r, 1000));
+                        if(!isMounted) return;
+
+                        // Highlight/Simulate click on the 10 Baht coupon
+                        // (In a real app, user clicks. Here we switch view)
+                        setView('redeem'); 
+                        
+                        // Show Timer
+                        await new Promise(r => setTimeout(r, 4000));
+                        if(!isMounted) return;
+
+                        // --- Phase 4: Reset Demo ---
+                        setView('card');
+                        setMyCoupons([]); // Clear coupons for next loop
+                        setStamps(3);
+                        await new Promise(r => setTimeout(r, 1000));
+                    }
+                }
+                runLoop();
+                return () => { isMounted = false; };
+            }, []);
+
+            return (
+                <div className="h-full bg-stone-50 flex flex-col font-sans relative overflow-hidden text-stone-800">
+                    
+                    {/* LIFF Header Simulation */}
+                    <div className="bg-stone-900 text-white px-4 py-1 text-[10px] flex justify-between items-center z-50">
+                        <span>12:30</span>
+                        <div className="flex gap-1">
+                            <span>5G</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                    <div className="bg-stone-800 text-white px-4 py-2.5 flex justify-between items-center z-50 shadow-sm">
+                        <span className="text-sm font-bold">X</span>
+                        <span className="text-sm font-bold">SnapPoint Rewards</span>
+                        <span className="text-sm">●●●</span>
+                    </div>
+
+                    {/* Notification */}
+                    <AnimatePresence>
+                        {showNoti && (
+                            <motion.div 
+                                initial={{ y: -60, opacity: 0 }}
+                                animate={{ y: 10, opacity: 1 }}
+                                exit={{ y: -60, opacity: 0 }}
+                                className="absolute top-12 left-4 right-4 bg-white/95 backdrop-blur p-3 rounded-xl shadow-lg z-[60] flex items-center gap-3 border border-stone-100"
+                            >
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${notiText.includes('คูปอง') ? 'bg-brand-amber text-white' : 'bg-green-100 text-green-600'}`}>
+                                    {notiText.includes('คูปอง') ? <Gift className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
+                                </div>
+                                <div>
+                                    <p className="font-bold text-xs text-stone-800">
+                                        {notiText.includes('คูปอง') ? "Reward Unlocked!" : "Check-in"}
+                                    </p>
+                                    <p className="text-[10px] text-stone-500">{notiText}</p>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Active Timer Screen */}
+                    <AnimatePresence>
+                        {view === 'redeem' && (
+                            <motion.div 
+                                initial={{ y: "100%" }}
+                                animate={{ y: 0 }}
+                                exit={{ y: "100%" }}
+                                className="absolute inset-0 z-50 bg-brand-teal text-white flex flex-col items-center justify-center p-6 text-center"
+                            >
+                                <div className="absolute top-4 right-4">
+                                    <span className="text-2xl opacity-50">×</span>
+                                </div>
+                                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                                    <Gift className="w-8 h-8 text-white" />
+                                </div>
+                                <h3 className="text-xl font-bold mb-2">คูปองส่วนลด 10 บาท</h3>
+                                <p className="text-teal-100 text-sm mb-8">กรุณาแสดงหน้านี้ให้พนักงาน</p>
+                                <div className="bg-black/30 rounded-2xl px-6 py-4 mb-4 backdrop-blur-sm w-full border border-white/10">
+                                    <span className="text-4xl font-mono font-bold tracking-widest text-white shadow-sm">04:59</span>
+                                </div>
+                                <div className="text-xs text-teal-200 mt-4 bg-teal-900/30 px-3 py-1 rounded-full">
+                                    กำลังใช้งานคูปอง...
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Main Content (Scrollable) */}
+                    <div className="flex-1 overflow-y-auto no-scrollbar pb-24 bg-stone-50">
+                        
+                        {/* Profile Header */}
+                        <div className="bg-white p-4 pt-4 pb-4 border-b border-stone-100 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-stone-200 overflow-hidden border border-stone-100">
+                                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix" alt="User" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-stone-800 text-sm">สวัสดี, คุณลูกค้า</h3>
+                                    <div className="flex items-center gap-1">
+                                        <div className="w-2 h-2 rounded-full bg-brand-amber"></div>
+                                        <p className="text-[10px] text-stone-500">Gold Member</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-stone-100 p-2 rounded-full text-stone-400">
+                                <History className="w-4 h-4" />
+                            </div>
+                        </div>
+
+                        <div className="p-4 space-y-4">
+                            {/* Card UI */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+                                <div className="bg-brand-teal p-4 flex justify-between items-center text-white">
+                                    <div>
+                                        <h2 className="font-bold text-sm">ร้านกาแฟของคุณ</h2>
+                                        <p className="text-teal-200 text-[10px]">Check-in Card</p>
+                                    </div>
+                                    <Coffee className="w-5 h-5 opacity-80"/>
+                                </div>
+                                <div className="p-4">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <span className="text-[10px] text-stone-400 uppercase tracking-wider font-bold">Progress</span>
+                                        <span className="text-xs font-bold text-brand-teal">{stamps}/10 ครั้ง</span>
+                                    </div>
+                                    <div className="grid grid-cols-5 gap-3">
+                                        {[...Array(10)].map((_, i) => (
+                                            <div key={i} className="flex flex-col items-center gap-1">
+                                                <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${i < stamps ? 'border-transparent' : 'border-dashed border-stone-200'} ${i === 4 || i === 9 ? 'bg-stone-50' : ''}`}>
+                                                    {i < stamps ? (
+                                                        <motion.div 
+                                                            initial={{ scale: 0 }} 
+                                                            animate={{ scale: 1 }}
+                                                            className="w-9 h-9 bg-brand-teal rounded-full flex items-center justify-center text-teal-100 shadow-sm"
+                                                        >
+                                                            <CheckCircle className="w-4 h-4" />
+                                                        </motion.div>
+                                                    ) : (
+                                                        // Show Gift Icon for milestones 5 and 10
+                                                        (i === 4 || i === 9) && <Gift className="w-4 h-4 text-brand-amber opacity-50" />
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="mt-3 flex justify-between px-1">
+                                        <div className="text-[9px] text-stone-400 text-center w-1/2">
+                                            ครบ 5 ครั้ง<br/><span className="text-brand-amber font-bold">รับคูปอง 5.-</span>
+                                        </div>
+                                        <div className="text-[9px] text-stone-400 text-center w-1/2">
+                                            ครบ 10 ครั้ง<br/><span className="text-brand-amber font-bold">รับคูปอง 10.-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Rewards/Coupons Section (Modified) */}
+                            <div>
+                                <div className="flex justify-between items-end mb-2 px-1">
+                                    <h4 className="font-bold text-xs text-stone-600 uppercase tracking-wider">คูปองของฉัน ({myCoupons.length})</h4>
+                                </div>
+                                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar min-h-[90px]">
+                                    <AnimatePresence mode="popLayout">
+                                        {myCoupons.length > 0 ? (
+                                            myCoupons.map((coupon, idx) => (
+                                                <motion.div 
+                                                    key={coupon.id}
+                                                    initial={{ scale: 0.8, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    className="min-w-[140px] bg-white p-3 rounded-xl border border-brand-teal/30 shadow-sm flex flex-col justify-between relative overflow-hidden"
+                                                >
+                                                    <div className="absolute top-0 right-0 w-8 h-8 bg-brand-amber/10 rounded-bl-full"></div>
+                                                    <div>
+                                                        <div className="w-7 h-7 bg-brand-amber text-white rounded-lg flex items-center justify-center mb-2 shadow-sm">
+                                                            <Gift className="w-4 h-4" />
+                                                        </div>
+                                                        <p className="text-xs font-bold text-stone-800">{coupon.name}</p>
+                                                        <p className="text-[9px] text-stone-400">{coupon.desc}</p>
+                                                    </div>
+                                                    <button className="mt-2 w-full py-1 bg-stone-800 text-white text-[10px] rounded font-bold">กดใช้</button>
+                                                </motion.div>
+                                            ))
+                                        ) : (
+                                            <motion.div 
+                                                initial={{ opacity: 0 }} 
+                                                animate={{ opacity: 1 }}
+                                                className="w-full bg-white border-2 border-dashed border-stone-200 rounded-xl p-4 flex flex-col items-center justify-center text-stone-300"
+                                            >
+                                                <Gift className="w-5 h-5 mb-1 opacity-50" />
+                                                <span className="text-[10px]">ยังไม่มีคูปอง</span>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </div>
+
+                            {/* Recent History */}
+                            <div>
+                                <h4 className="font-bold text-xs text-stone-600 uppercase tracking-wider mb-2 px-1">ประวัติการใช้งาน</h4>
+                                <div className="bg-white rounded-xl border border-stone-200 divide-y divide-stone-100">
+                                    <div className="flex justify-between items-center p-3">
+                                        <div className="flex gap-3 items-center">
+                                            <div className="w-8 h-8 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">
+                                                <CheckCircle className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-bold text-stone-800">Check-in ที่ร้าน</p>
+                                                <p className="text-[10px] text-stone-400">วันนี้, 12:30</p>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-bold text-green-600">สำเร็จ</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-3 opacity-60">
+                                        <div className="flex gap-3 items-center">
+                                            <div className="w-8 h-8 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">
+                                                <CheckCircle className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-bold text-stone-800">Check-in ที่ร้าน</p>
+                                                <p className="text-[10px] text-stone-400">เมื่อวาน, 08:45</p>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-bold text-green-600">สำเร็จ</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sticky Footer Action */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-stone-200 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+                        <button className="w-full py-3.5 bg-stone-800 text-white hover:bg-stone-900 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
+                            <Scan className="w-4 h-4" /> สแกนเช็คอิน
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const Hero = () => (
+            <section className="relative pt-32 pb-20 overflow-hidden bg-paper">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                        
+                        {/* Text Content */}
+                        <div className="flex-1 text-center lg:text-left z-10">
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6 }}
+                            >
+                                <span className="inline-block px-4 py-1.5 rounded-full bg-teal-50 text-brand-teal text-xs font-bold tracking-wider mb-6 border border-teal-100 uppercase">
+                                    For Solopreneur Coffee Shops
+                                </span>
+                                <h1 className="text-4xl lg:text-6xl font-bold text-stone-900 leading-tight mb-6">
+                                    เปลี่ยน 'ขาจร' เป็น 'ขาประจำ'<br/>
+                                    <span className="text-brand-teal">โดยที่คุณไม่ต้องขยับตัว</span>
+                                </h1>
+                                <p className="text-lg text-stone-600 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                                    ระบบสะสมแต้มบน LINE สำหรับร้านที่เจ้าของชงเอง ขายเอง และ <strong>"ไม่มีเวลากดมือถือ"</strong> ลูกค้ากดเองได้ 100%
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                                    <button 
+                                        onClick={() => document.getElementById('pricing').scrollIntoView()}
+                                        className="px-8 py-4 bg-brand-teal hover:bg-teal-800 text-white rounded-xl font-bold text-lg shadow-xl shadow-teal-900/10 transition-all transform hover:-translate-y-1"
+                                    >
+                                        เริ่มต้นใช้งาน 199.-
+                                    </button>
+                                    <button className="px-8 py-4 bg-white text-stone-700 border border-stone-200 hover:bg-stone-50 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2">
+                                        ดูวิดีโอตัวอย่าง
+                                    </button>
+                                </div>
+                                <p className="mt-6 text-sm text-stone-400">
+                                    * ติดตั้งเสร็จใน 3 นาที • ลูกค้าไม่ต้องโหลดแอปเพิ่ม
+                                </p>
+                            </motion.div>
+                        </div>
+
+                        {/* Phone Mockup */}
+                        <div className="flex-1 relative w-full max-w-[320px] lg:max-w-none flex justify-center">
+                            {/* Blobs */}
+                            <div className="absolute top-0 right-10 w-64 h-64 bg-teal-200/50 rounded-full blur-3xl animate-float"></div>
+                            <div className="absolute bottom-0 left-10 w-64 h-64 bg-amber-200/50 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
+                            
+                            <motion.div 
+                                initial={{ y: 50, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ duration: 0.8, delay: 0.2 }}
+                                className="relative border-stone-800 bg-stone-800 border-[10px] rounded-[2.5rem] h-[600px] w-[300px] shadow-2xl overflow-hidden"
+                            >
+                                <div className="rounded-[2rem] overflow-hidden w-full h-full bg-white relative">
+                                    <DemoApp />
+                                </div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+
+        const PainPoints = () => (
+            <section id="features" className="py-24 bg-white">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <h2 className="text-3xl font-bold text-stone-900 mb-4">คุณกำลังเจอปัญหาแบบนี้อยู่หรือเปล่า?</h2>
+                        <p className="text-stone-500 text-lg">ร้านกาแฟเล็กๆ มักจะตกม้าตายเรื่อง "ความยุ่งยาก"</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {[
+                            {
+                                icon: <XCircle className="w-10 h-10 text-red-400" />,
+                                title: "บัตรกระดาษ ต้นทุนจม",
+                                desc: "พิมพ์ทิ้งพิมพ์ขว้าง ลูกค้าทำหายก็จบกัน ลืมพกก็อดสะสม ดูไม่โปร แถมต้นทุนค่าพิมพ์เดือนนึงไม่ใช่เล่นๆ"
+                            },
+                            {
+                                icon: <Smartphone className="w-10 h-10 text-red-400" />,
+                                title: "แอปฟรี... ที่เพิ่มงาน",
+                                desc: "ต้องคอยหยิบมือถือร้านมาสแกนให้ลูกค้า ตอนลูกค้าต่อคิวเยอะๆ ใครจะไปทำทัน? สุดท้ายเลิกใช้"
+                            },
+                            {
+                                icon: <ShieldCheck className="w-10 h-10 text-red-400" />,
+                                title: "กลัวโดนโกง",
+                                desc: "อยากแปะ QR ทิ้งไว้ให้ลูกค้ากดเอง ก็กลัวลูกค้าแอบถ่ายรูป QR กลับไปกดปั๊มแต้มเล่นที่บ้าน"
+                            }
+                        ].map((item, idx) => (
+                            <div key={idx} className="p-8 rounded-3xl bg-red-50/30 border border-red-100 hover:shadow-lg transition-all text-center md:text-left">
+                                <div className="mb-4 inline-block bg-white p-3 rounded-2xl shadow-sm">{item.icon}</div>
+                                <h3 className="text-xl font-bold text-stone-900 mb-3">{item.title}</h3>
+                                <p className="text-stone-600 leading-relaxed text-sm">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+
+        const Solution = () => (
+            <section id="how-it-works" className="py-24 bg-brand-dark text-white overflow-hidden relative">
+                <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                <div className="max-w-6xl mx-auto px-4 relative z-10">
+                    <div className="text-center mb-20">
+                        <span className="text-brand-teal font-bold tracking-widest text-sm uppercase">The Solution</span>
+                        <h2 className="text-3xl md:text-4xl font-bold mt-2">3 วินาทีแห่งความโล่งใจ</h2>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <div className="space-y-12">
+                                <div className="flex gap-6">
+                                    <div className="w-12 h-12 rounded-full bg-brand-teal flex items-center justify-center text-xl font-bold flex-shrink-0">1</div>
+                                    <div>
+                                        <h3 className="text-xl font-bold mb-2">Zero-Touch System</h3>
+                                        <p className="text-stone-400 leading-relaxed">แปะ QR ทิ้งไว้... จบ! ลูกค้าสแกนเอง สะสมเอง แลกเอง คุณมีหน้าที่แค่ชงกาแฟให้อร่อยที่สุด</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-6">
+                                    <div className="w-12 h-12 rounded-full bg-brand-teal flex items-center justify-center text-xl font-bold flex-shrink-0">2</div>
+                                    <div>
+                                        <h3 className="text-xl font-bold mb-2">Smart Anti-Cheat</h3>
+                                        <p className="text-stone-400 leading-relaxed">ระบบ Cooldown อัจฉริยะ ป้องกันการปั๊มแต้มซ้ำ และหน้าจอ Animation ยืนยันสิทธิ์ที่แคปหน้าจอมาหลอกไม่ได้</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-6">
+                                    <div className="w-12 h-12 rounded-full bg-brand-teal flex items-center justify-center text-xl font-bold flex-shrink-0">3</div>
+                                    <div>
+                                        <h3 className="text-xl font-bold mb-2">Professional Look</h3>
+                                        <p className="text-stone-400 leading-relaxed">ร้านเล็กแต่ดูโปร ด้วยหน้าบัตร Digital สวยงามบน LINE ที่ลูกค้าทุกคนมีอยู่แล้ว</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white/5 rounded-3xl p-8 border border-white/10 backdrop-blur-sm relative">
+                            {/* Abstract Visual representation of Automation */}
+                            <div className="absolute top-4 right-4 text-6xl opacity-20">⚙️</div>
+                            <div className="text-center py-12">
+                                <p className="text-2xl font-bold mb-4">"ตั้งแต่ใช้ SnapPoint มา<br/>พี่ไม่ต้องหยิบมือถือเลย"</p>
+                                <p className="text-brand-teal text-sm">— พี่ต้น, เจ้าของร้าน Slow Bar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+
+        const Pricing = () => (
+            <section id="pricing" className="py-24 bg-white relative">
+                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl font-bold text-stone-900">ลงทุนน้อยกว่า... แก้วที่ทิ้งต่อเดือน</h2>
+                        <p className="text-stone-500 mt-4">เริ่มต้นเบาๆ จ่ายเท่าที่ใช้ (Pay as you grow)</p>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row gap-8 items-start">
+                        {/* Starter Plan */}
+                        <div className="flex-1 w-full bg-white border-2 border-brand-teal rounded-3xl p-8 shadow-xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                            <div className="absolute top-0 right-0 bg-brand-teal text-white text-xs font-bold px-4 py-1 rounded-bl-xl">ขายดี</div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Starter Plan</h3>
+                            <p className="text-sm text-stone-500 mb-6">สำหรับร้านเริ่มต้น 1 สาขา</p>
+                            
+                            <div className="flex items-baseline gap-1 mb-8">
+                                <span className="text-5xl font-bold text-stone-900">199</span>
+                                <span className="text-stone-500 font-medium">บาท / เดือน</span>
+                            </div>
+
+                            <div className="space-y-4 mb-8">
+                                {[
+                                    "สแกนสะสมแต้มได้ไม่จำกัด",
+                                    "สมาชิกสูงสุด 1,000 คน",
+                                    "ระบบกันโกง (Cooldown)",
+                                    "หน้าบัตร Digital มาตรฐาน",
+                                    "Dashboard ดูยอดรายวัน"
+                                ].map((feat, i) => (
+                                    <div key={i} className="flex items-center gap-3 text-sm text-stone-600">
+                                        <CheckCircle className="w-5 h-5 text-brand-teal flex-shrink-0" />
+                                        {feat}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="bg-stone-50 p-4 rounded-xl mb-8 border border-stone-100 text-center">
+                                <p className="text-xs text-stone-500">💰 ถูกกว่าจ้างเด็กพาร์ทไทม์ 1 ชั่วโมง</p>
+                                <p className="text-xs text-stone-500">🏷️ ถูกกว่าค่าพิมพ์บัตรกระดาษ</p>
+                            </div>
+
+                            <button className="w-full py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-stone-800 transition shadow-lg">
+                                เริ่มต้นใช้งาน 199.-
+                            </button>
+                        </div>
+
+                        {/* Add-ons */}
+                        <div className="flex-1 w-full bg-stone-50 rounded-3xl p-8 border border-stone-200">
+                            <h3 className="text-xl font-bold text-stone-800 mb-4">Add-ons (เลือกซื้อเพิ่มได้)</h3>
+                            <p className="text-sm text-stone-500 mb-8">ไม่บังคับซื้อ จ่ายเพิ่มเฉพาะฟีเจอร์ที่อยากได้</p>
+                            
+                            <div className="space-y-3">
+                                {[
+                                    { name: "Custom Icon & Theme", price: "+49", desc: "เปลี่ยนรูปตรายาง/สีธีม" },
+                                    { name: "Remove Branding", price: "+99", desc: "ลบโลโก้ SnapPoint" },
+                                    { name: "Export Data (Excel)", price: "+129", desc: "ดึงรายชื่อลูกค้า" },
+                                    { name: "Birthday Rewards", price: "+69", desc: "คูปองวันเกิดอัตโนมัติ" }
+                                ].map((addon, i) => (
+                                    <div key={i} className="flex justify-between items-center bg-white p-4 rounded-xl border border-stone-100 shadow-sm hover:border-brand-teal/50 transition-colors cursor-pointer">
+                                        <div>
+                                            <p className="font-bold text-stone-700 text-sm">{addon.name}</p>
+                                            <p className="text-xs text-stone-400">{addon.desc}</p>
+                                        </div>
+                                        <span className="text-sm font-bold text-brand-teal bg-teal-50 px-2 py-1 rounded">{addon.price} บ.</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-center text-xs text-stone-400 mt-6">* เลือกซื้อได้ภายหลังในระบบหลังบ้าน</p>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+        );
+
+        const Footer = () => (
+            <footer className="bg-white border-t border-stone-100 py-12">
+                <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-stone-500">
+                    <div className="flex items-center gap-2">
+                         <div className="w-6 h-6 bg-brand-dark rounded flex items-center justify-center text-white font-brand font-bold text-xs">S</div>
+                         <span className="font-bold text-stone-800">SnapPoint</span>
+                    </div>
+                    <div className="flex gap-6">
+                        <a href="#" className="hover:text-brand-teal">Contact Support</a>
+                        <a href="#" className="hover:text-brand-teal">Privacy Policy</a>
+                        <a href="#" className="hover:text-brand-teal">Terms</a>
+                    </div>
+                    <div>© 2024 SnapPoint. Made for Solopreneurs.</div>
+                </div>
+            </footer>
+        );
+
+        const App = () => (
+            <div className="min-h-screen">
+                <Navbar />
+                <Hero />
+                <PainPoints />
+                <Solution />
+                <Pricing />
+                <Footer />
+            </div>
+        );
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
