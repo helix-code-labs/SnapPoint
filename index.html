@@ -100,6 +100,13 @@
         const { useState, useEffect, useRef } = React;
         const { motion, AnimatePresence } = window.Motion;
         
+        // --- HANDLERS ---
+        const handleLineClick = () => {
+            // Open LINE OA in new tab
+            window.open('https://line.me/R/ti/p/@530jwhdc', '_blank');
+            console.log('User clicked CTA -> LINE OA');
+        };
+        
         // --- ICONS ---
         const Icons = {
             Coffee: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>,
@@ -139,7 +146,7 @@
                             <a href="#features" className="hover:text-brand-teal transition">จุดเด่น</a>
                             <a href="#pricing" className="hover:text-brand-teal transition">ราคา</a>
                         </div>
-                        <button onClick={() => document.getElementById('pricing').scrollIntoView()} className="bg-brand-dark hover:bg-stone-700 text-white px-5 py-2 rounded-full text-sm font-bold transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2">
+                        <button onClick={handleLineClick} className="bg-brand-dark hover:bg-stone-700 text-white px-5 py-2 rounded-full text-sm font-bold transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2">
                             ทดลองฟรี 30 วัน
                         </button>
                     </div>
@@ -322,7 +329,7 @@
                                     <h1 className="text-4xl lg:text-6xl font-bold text-stone-900 leading-snug lg:leading-normal mb-6">ระบบสะสมแต้มที่รันเองได้<br/><span className="text-brand-teal">เจ้าของไม่ต้องยุ่ง แค่ฟังเสียง 'ติ๊ง'</span></h1>
                                     <p className="text-lg text-stone-600 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">เปลี่ยนขาจรเป็นขาประจำด้วยระบบ Zero-Touch Loyalty ที่ออกแบบมาเพื่อร้านค้าขนาดเล็กโดยเฉพาะ ไม่ต้องใช้ POS ไม่ต้องกดมือถือ</p>
                                     <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                                        <button onClick={() => document.getElementById('pricing').scrollIntoView()} className="px-6 sm:px-7 lg:px-8 py-3.5 sm:py-4 bg-brand-teal hover:bg-teal-800 text-white rounded-xl font-bold text-base lg:text-lg shadow-xl shadow-teal-900/10 transition-colors transform hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2 whitespace-nowrap">ทดลองฟรี 30 วัน</button>
+                                        <button onClick={handleLineClick} className="px-6 sm:px-7 lg:px-8 py-3.5 sm:py-4 bg-brand-teal hover:bg-teal-800 text-white rounded-xl font-bold text-base lg:text-lg shadow-xl shadow-teal-900/10 transition-colors transform hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2 whitespace-nowrap">ทดลองฟรี 30 วัน</button>
                                         <button onClick={() => document.querySelector('.phone-demo').scrollIntoView({behavior: 'smooth'})} className="px-6 sm:px-7 lg:px-8 py-3.5 sm:py-4 bg-white text-stone-700 border border-stone-200 hover:bg-stone-50 rounded-xl font-bold text-base lg:text-lg transition-colors flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2 whitespace-nowrap">ดูตัวอย่าง</button>
                                     </div>
                                     <p className="mt-6 text-sm text-stone-400">* ติดตั้งเสร็จใน 5 นาที • ลูกค้าไม่ต้องโหลดแอปเพิ่ม</p>
@@ -473,13 +480,13 @@
                                 ))}
                             </div>
 
-                            <button className="w-full py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-stone-800 transition-colors shadow-lg focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2">
+                            <button onClick={handleLineClick} className="w-full py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-stone-800 transition-colors shadow-lg focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2">
                                 เริ่มต้นใช้งานฟรี 30 วัน
                             </button>
                             <p className="text-center text-[10px] text-stone-400 mt-3">หลังจากนั้น 199 บาท/เดือน (ยกเลิกได้ตลอด)</p>
                             
                             <div className="mt-4 bg-teal-50 border border-teal-100 rounded-lg p-3 text-center">
-                                <p className="text-[10px] text-brand-teal font-semibold">🔒 ผู้สมัครช่วง Launch รับราคา 199฿ ตลอดชีพ (Grandfathering)</p>
+                                <p className="text-[10px] text-brand-teal font-semibold">🔒 ผู้สมัครช่วง Launch รับราคา 199฿ ตลอดชีพ</p>
                             </div>
                         </div>
 
@@ -517,7 +524,7 @@
                 { q: "ต้องซื้ออุปกรณ์เพิ่มไหม?", a: "ไม่ต้องครับ ใช้มือถือเครื่องเดิมของคุณ + ปริ้นท์กระดาษ QR Code 1 แผ่นแปะหน้าร้าน ก็เริ่มใช้งานได้เลย" },
                 { q: "ลูกค้าต้องโหลดแอปไหม?", a: "ไม่ต้องโหลดครับ ลูกค้าสแกนผ่าน LINE ที่มีอยู่แล้วได้เลย สะดวกและรวดเร็วมากลดโอกาสที่ลูกค้าจะปฏิเสธ" },
                 { q: "ทำไมราคาถูกจัง มีอะไรแอบแฝงไหม?", a: "เราตั้งใจทำราคา Micro-CRM ให้ร้านเล็กเข้าถึงได้ โดยตัดฟีเจอร์ซับซ้อนออก เหลือแต่สิ่งที่จำเป็น ราคานี้ไม่มีบวกเพิ่ม ยกเว้นคุณต้องการฟีเจอร์เสริมในอนาคต" },
-                { q: "อนาคตจะขึ้นราคาไหม?", a: "สำหรับลูกค้าที่สมัครในช่วง Launch Period นี้ เราการันตีล็อคราคา 199 บาทให้ตลอดไปครับ (Grandfathering)" }
+                { q: "อนาคตจะขึ้นราคาไหม?", a: "สำหรับลูกค้าที่สมัครในช่วง Launch Period นี้ เราการันตีล็อคราคา 199 บาทให้ตลอดไปครับ" }
             ];
 
             return (
