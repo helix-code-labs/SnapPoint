@@ -136,7 +136,7 @@ const DemoApp: React.FC<DemoAppProps> = ({ currentTheme }) => {
                         <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar min-h-[90px]">
                             <AnimatePresence mode="popLayout">
                                 {myCoupons.length > 0 ? (
-                                    myCoupons.map((coupon, idx) => (
+                                    myCoupons.map((coupon) => (
                                         <motion.div key={coupon.id} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className={`min-w-[140px] bg-white p-3 rounded-xl border shadow-sm flex flex-col justify-between relative overflow-hidden`} style={{ borderColor: 'rgba(0,0,0,0.05)' }}>
                                             <div><div className={`w-7 h-7 text-white rounded-lg flex items-center justify-center mb-2 shadow-sm ${currentTheme.secondary}`}><ICONS.Gift className="w-4 h-4" aria-hidden="true" /></div><p className="text-xs font-bold text-stone-800">{coupon.name}</p><p className="text-[9px] text-stone-400">{coupon.desc}</p></div>
                                             <button className="mt-2 w-full py-1 bg-stone-800 text-white text-[10px] rounded font-bold">กดใช้</button>
