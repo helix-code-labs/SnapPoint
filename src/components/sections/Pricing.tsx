@@ -27,7 +27,7 @@ const Pricing = () => (
                         <span className="text-5xl font-bold text-stone-900">199</span>
                         <span className="text-stone-500 font-medium">บาท / เดือน</span>
                     </div>
-                    <p className="text-xs text-brand-teal mb-8 font-semibold bg-teal-50 inline-block px-2 py-1 rounded">🔥 โปรโมชั่น: สแกนได้ไม่จำกัด</p>
+                    <p className="text-xs text-orange-700 bg-orange-100 font-bold mb-8 inline-block px-3 py-1.5 rounded-full animate-pulse border border-orange-200">🔥 โปรโมชั่น: สแกนได้ไม่จำกัด</p>
 
                     <div className="space-y-4 mb-8">
                         {[
