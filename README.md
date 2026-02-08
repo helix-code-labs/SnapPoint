@@ -1,73 +1,110 @@
-# React + TypeScript + Vite
+# SnapPoint Landing Page
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> "Zero-Touch Loyalty: เพิ่มลูกค้าประจำได้จริง โดยที่คุณไม่ต้องขยับตัว"
 
-Currently, two official plugins are available:
+The marketing landing page for **SnapPoint**, a Micro-CRM loyalty point system designed for Thai coffee shops. This application serves as the primary entry point for potential customers, showcasing the product's "Zero-Touch" philosophy through interactive demos and clear value propositions.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Current Status:** Pilot Launch Ready (v9.0)
 
-## React Compiler
+## Overview
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This project is a single-page application (SPA) built to convert visitors into pilot users. It features:
+- **Interactive Demo:** A simulated experience of the "Zero-Touch" scanning process.
+- **Value Proposition:** Clear explanation of the 199฿/month flat rate model.
+- **Responsive Design:** Mobile-first approach optimized for all devices.
+- **Thai Language First:** All content is localized for the target market (Thai SME owners).
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Framework:** [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **Deployment:** GitHub Pages (via GitHub Actions)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Local Development Setup
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Prerequisites
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Node.js** (Latest LTS recommended)
+- **pnpm** (Package manager)
+
+### Installation
+
+1. Navigate to the landing page directory:
+   ```bash
+   cd apps/landing
+   ```
+
+2. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+
+### Running Locally
+
+Start the development server with Hot Module Replacement (HMR):
+
+```bash
+pnpm dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The application will be available at `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Building for Production
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+To create a production-ready build:
+
+```bash
+pnpm build
 ```
+
+The output will be generated in the `dist/` directory.
+
+### Linting
+
+Ensure code quality and style consistency:
+
+```bash
+pnpm lint
+```
+
+## Project Structure
+
+```
+apps/landing/
+├── public/              # Static assets (favicons, etc.)
+├── src/
+│   ├── components/      # Shared UI components (DemoApp, PhoneMockup)
+│   ├── layout/          # Layout components (Navbar, Footer)
+│   ├── sections/        # Page sections (Hero, Features, Pricing, etc.)
+│   ├── constants/       # configuration constants
+│   ├── App.tsx          # Main application component
+│   └── main.tsx         # Entry point
+└── vite.config.ts       # Vite configuration
+```
+
+## Deployment
+
+This project is automatically deployed to GitHub Pages via GitHub Actions when changes are pushed to the `main` branch.
+
+- **Workflow File:** `.github/workflows/deploy.yml`
+- **Live Site:** [Insert Live URL Here]
+
+## Key Features Implemented
+
+- **Hero Section:** Introduction with primary CTA.
+- **Interactive Demo:** Simulates the LINE QR scan and "Ting!" audio feedback.
+- **Pain Points:** Addresses common issues (expensive POS, lost cards).
+- **Pricing:** Simple 199฿/month pricing display.
+- **FAQ:** Handles common objections (downloads, equipment).
+
+## Contributing
+
+1. **Branching:** Create a feature branch for your changes.
+2. **Conventions:** Follow the project's [Coding Guidelines](../../AGENTS.md).
+3. **Pull Request:** Submit a PR with a clear description of changes.
+
+---
+
+**Maintained by:** HelixCodeLabs Team
