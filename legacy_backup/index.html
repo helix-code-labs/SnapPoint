@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapPoint - ระบบสะสมแต้ม Zero-Touch สำหรับร้านกาแฟ</title>
+    <meta name="description" content="Micro-CRM สำหรับร้านกาแฟเจ้าของคนเดียว เริ่มต้นฟรี 30 วัน ไม่ต้องใช้ POS แค่ฟังเสียง 'ติ๊ง' ก็รู้เรื่อง">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SnapPoint - ระบบสะสมแต้ม Zero-Touch">
+    <meta property="og:description" content="เปลี่ยนขาจรเป็นขาประจำด้วยระบบ Micro-CRM ที่เจ้าของร้านไม่ต้องขยับตัว เริ่มต้นฟรี!">
+    <meta property="og:image" content="https://placehold.co/1200x630/0f766e/ffffff?text=SnapPoint+Zero-Touch+Loyalty">
+    <meta property="og:url" content="https://snappoint.app/">
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            scroll-behavior: smooth;
+            background-color: #fafaf9;
+            color: #1c1917;
+        }
+        .font-brand { font-family: 'Fredoka', sans-serif; }
+        
+        /* Custom Utilities */
+        .text-teal-deep { color: #0f766e; }
+        .bg-teal-deep { background-color: #0f766e; }
+        
+        .bg-paper {
+            background-image: radial-gradient(#d6d3d1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Skip to main content link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #0f766e;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            z-index: 10000;
+            font-weight: 600;
+            border-radius: 0 0 4px 0;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+        
+        /* Respect reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            body {
+                scroll-behavior: auto;
+            }
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { teal: '#0f766e', stone: '#fafaf9', amber: '#f59e0b', dark: '#1c1917' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { motion, AnimatePresence } = window.Motion;
+        
+        // --- HANDLERS ---
+        const handleLineClick = () => {
+            // Open LINE OA in new tab
+            window.open('https://line.me/R/ti/p/@530jwhdc', '_blank');
+            console.log('User clicked CTA -> LINE OA');
+        };
+        
+        // --- ICONS ---
+        const Icons = {
+            Coffee: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>,
+            Gift: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>,
+            Scan: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>,
+            Check: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"/></svg>,
+            Volume: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>,
+            Printer: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>,
+            Zap: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+            History: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>,
+            ChevronDown: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6"/></svg>,
+            XCircle: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>,
+            Smartphone: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>,
+            ShieldCheck: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>,
+            Lock: ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        };
+
+        // --- THEMES CONFIG ---
+        const THEMES = [
+            { id: 'cafe', name: 'ร้านกาแฟของคุณ', label: 'Classic Cafe', primary: 'bg-brand-teal', secondary: 'bg-brand-amber', textPrimary: 'text-brand-teal', textSecondary: 'text-brand-amber', bgGradient: 'from-teal-700 to-emerald-900', icon: Icons.Coffee, accent: 'text-teal-100', btnColor: 'bg-teal-600' },
+            { id: 'sweet', name: 'Sweet Bakery', label: 'Sweet Pastel', primary: 'bg-pink-500', secondary: 'bg-rose-400', textPrimary: 'text-pink-600', textSecondary: 'text-rose-500', bgGradient: 'from-pink-500 to-rose-600', icon: Icons.Gift, accent: 'text-pink-100', btnColor: 'bg-pink-500' },
+            { id: 'dark', name: 'Dark Roast Bar', label: 'Modern Dark', primary: 'bg-stone-800', secondary: 'bg-orange-600', textPrimary: 'text-stone-800', textSecondary: 'text-orange-600', bgGradient: 'from-stone-800 to-black', icon: Icons.Coffee, accent: 'text-stone-300', btnColor: 'bg-stone-800' }
+        ];
+
+        // --- COMPONENTS ---
+        const Navbar = () => (
+            <nav className="fixed w-full z-[999] bg-white/80 backdrop-blur-md border-b border-stone-200">
+                <a href="#main-content" className="skip-link">ข้ามไปยังเนื้อหาหลัก</a>
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <button onClick={() => window.scrollTo(0,0)} className="flex items-center gap-2 cursor-pointer bg-transparent border-0 p-0 hover:opacity-80 transition focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2 rounded" aria-label="กลับไปด้านบนสุดของหน้า">
+                            <div className="w-8 h-8 bg-brand-teal rounded-lg flex items-center justify-center text-white font-brand font-bold text-xl shadow-md">S</div>
+                            <span className="font-brand text-xl font-bold text-stone-800 tracking-tight">SnapPoint</span>
+                        </button>
+                        <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-stone-600">
+                            <a href="#how-it-works" className="hover:text-brand-teal transition">วิธีใช้งาน</a>
+                            <a href="#features" className="hover:text-brand-teal transition">จุดเด่น</a>
+                            <a href="#pricing" className="hover:text-brand-teal transition">ราคา</a>
+                        </div>
+                        <button onClick={handleLineClick} className="bg-brand-dark hover:bg-stone-700 text-white px-5 py-2 rounded-full text-sm font-bold transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2">
+                            ทดลองฟรี 30 วัน
+                        </button>
+                    </div>
+                </div>
+            </nav>
+        );
+
+        // --- DEMO APP ---
+        const DemoApp = ({ currentTheme }) => {
+            const [stamps, setStamps] = useState(3);
+            const [showNoti, setShowNoti] = useState(false);
+            const [notiText, setNotiText] = useState("");
+            const [view, setView] = useState('card');
+            const [myCoupons, setMyCoupons] = useState([]);
+            const ThemeIcon = currentTheme.icon;
+
+            useEffect(() => {
+                let isMounted = true;
+                const runLoop = async () => {
+                    while(isMounted) {
+                        for(let i=3; i<=5; i++) {
+                            if(!isMounted) return;
+                            setStamps(i);
+                            if (i === 5) {
+                                setShowNoti(true);
+                                setNotiText("🎉 ได้รับคูปองส่วนลด 5฿");
+                                setMyCoupons(prev => { if(prev.some(c => c.id === 5)) return prev; return [...prev, { id: 5, name: 'ส่วนลด 5 บาท', desc: 'เมื่อครบ 5 แต้ม' }]; });
+                                await new Promise(r => setTimeout(r, 2000));
+                                setShowNoti(false);
+                            } else if (i > 3) {
+                                setShowNoti(true);
+                                setNotiText(`เช็คอินสำเร็จ! (ครั้งที่ ${i}/10)`);
+                                await new Promise(r => setTimeout(r, 1000));
+                                setShowNoti(false);
+                            } else {
+                                await new Promise(r => setTimeout(r, 800));
+                            }
+                        }
+                        await new Promise(r => setTimeout(r, 800));
+                        for(let i=6; i<=10; i++) {
+                            if(!isMounted) return;
+                            setStamps(i);
+                            if (i === 10) {
+                                setShowNoti(true);
+                                setNotiText("🎉 ได้รับคูปองส่วนลด 10฿");
+                                setMyCoupons(prev => { if(prev.some(c => c.id === 10)) return prev; return [...prev, { id: 10, name: 'ส่วนลด 10 บาท', desc: 'เมื่อครบ 10 แต้ม' }] });
+                                await new Promise(r => setTimeout(r, 2500));
+                                setShowNoti(false);
+                            } else {
+                                setShowNoti(true);
+                                setNotiText(`เช็คอินสำเร็จ! (ครั้งที่ ${i}/10)`);
+                                await new Promise(r => setTimeout(r, 1000));
+                                setShowNoti(false);
+                            }
+                        }
+                        setStamps(0);
+                        await new Promise(r => setTimeout(r, 1000));
+                        if(!isMounted) return;
+                        setView('redeem'); 
+                        await new Promise(r => setTimeout(r, 4000));
+                        if(!isMounted) return;
+                        setView('card');
+                        setMyCoupons([]); 
+                        setStamps(3);
+                        await new Promise(r => setTimeout(r, 1000));
+                    }
+                }
+                runLoop();
+                return () => { isMounted = false; };
+            }, []);
+
+            return (
+                <div className="h-full bg-stone-50 flex flex-col font-sans relative overflow-hidden text-stone-800 transition-colors duration-500">
+                    <div className="bg-stone-900 text-white px-4 py-1 text-[10px] flex justify-between items-center z-50">
+                        <span>12:30</span><div className="flex gap-1"><span>5G</span><span>100%</span></div>
+                    </div>
+                    <div className="bg-stone-800 text-white px-4 py-2.5 flex justify-between items-center z-50 shadow-sm">
+                        <span className="text-sm font-bold">X</span><span className="text-sm font-bold">SnapPoint Rewards</span><span className="text-sm">●●●</span>
+                    </div>
+                    <AnimatePresence>
+                        {showNoti && (
+                            <motion.div initial={{ y: -60, opacity: 0 }} animate={{ y: 10, opacity: 1 }} exit={{ y: -60, opacity: 0 }} className="absolute top-12 left-4 right-4 bg-white/95 backdrop-blur p-3 rounded-xl shadow-lg z-[60] flex items-center gap-3 border border-stone-100" role="status" aria-live="polite">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${notiText.includes('คูปอง') ? currentTheme.secondary + ' text-white' : 'bg-green-100 text-green-600'}`}>
+                                    {notiText.includes('คูปอง') ? <Icons.Gift className="w-5 h-5" /> : <Icons.Check className="w-5 h-5" />}
+                                </div>
+                                <div><p className="font-bold text-xs text-stone-800">{notiText.includes('คูปอง') ? "Reward Unlocked!" : "Check-in"}</p><p className="text-[10px] text-stone-500">{notiText}</p></div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    <AnimatePresence>
+                        {view === 'redeem' && (
+                            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className={`absolute inset-0 z-50 text-white flex flex-col items-center justify-center p-6 text-center ${currentTheme.primary}`}>
+                                <div className="absolute top-4 right-4"><span className="text-2xl opacity-50">×</span></div>
+                                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-6 animate-pulse"><Icons.Gift className="w-8 h-8 text-white" /></div>
+                                <h3 className="text-xl font-bold mb-2">คูปองส่วนลด 10 บาท</h3>
+                                <p className={`text-sm mb-8 ${currentTheme.accent}`}>กรุณาแสดงหน้านี้ให้พนักงาน</p>
+                                <div className="bg-black/30 rounded-2xl px-6 py-4 mb-4 backdrop-blur-sm w-full border border-white/10"><span className="text-4xl font-mono font-bold tracking-widest text-white shadow-sm">04:59</span></div>
+                                <div className="text-xs mt-4 bg-black/20 px-3 py-1 rounded-full text-white/80">กำลังใช้งานคูปอง…</div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    <div className="flex-1 overflow-y-auto no-scrollbar pb-24 bg-stone-50">
+                        <div className="bg-white p-4 pt-4 pb-4 border-b border-stone-100 flex items-center justify-between">
+                            <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-stone-200 overflow-hidden border border-stone-100"><img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix" alt="รูปโปรไฟล์สมาชิก" /></div><div><h3 className="font-bold text-stone-800 text-sm">สวัสดี, คุณลูกค้า</h3><div className="flex items-center gap-1"><div className={`w-2 h-2 rounded-full ${currentTheme.secondary}`}></div><p className="text-[10px] text-stone-500">Member</p></div></div></div>
+                            <button className="bg-stone-100 p-2 rounded-full text-stone-400 hover:bg-stone-200 transition focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2" aria-label="ดูประวัติการใช้งาน"><Icons.History className="w-4 h-4" /></button>
+                        </div>
+                        <div className="p-4 space-y-4">
+                            <motion.div key={currentTheme.id} initial={{ opacity: 0.8 }} animate={{ opacity: 1 }} className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden transition-opacity duration-500">
+                                <div className={`p-4 flex justify-between items-center text-white bg-gradient-to-r ${currentTheme.bgGradient}`}><div><h2 className="font-bold text-sm">{currentTheme.name}</h2><p className={`text-[10px] ${currentTheme.accent}`}>Loyalty Card</p></div><ThemeIcon className="w-5 h-5 opacity-80"/></div>
+                                <div className="p-4">
+                                    <div className="flex justify-between items-center mb-3"><span className="text-[10px] text-stone-400 uppercase tracking-wider font-bold">Progress</span><span className={`text-xs font-bold ${currentTheme.textPrimary}`}>{stamps}/10 ครั้ง</span></div>
+                                    <div className="grid grid-cols-5 gap-3">
+                                        {[...Array(10)].map((_, i) => (
+                                            <div key={i} className="flex flex-col items-center gap-1">
+                                                <div className={`w-9 h-9 aspect-square shrink-0 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${i < stamps ? 'border-transparent' : 'border-dashed border-stone-200'} ${i === 4 || i === 9 ? 'bg-stone-50' : ''}`}>
+                                                    {i < stamps ? (<motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className={`w-9 h-9 aspect-square shrink-0 rounded-full flex items-center justify-center text-white shadow-sm ${currentTheme.primary}`}><Icons.Check className="w-4 h-4" /></motion.div>) : ((i === 4 || i === 9) && <Icons.Gift className={`w-4 h-4 opacity-50 ${currentTheme.textSecondary}`} />)}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="mt-3 flex justify-between px-1">
+                                        <div className="text-[9px] text-stone-400 text-center w-1/2">ครบ 5 ครั้ง<br/><span className={`${currentTheme.textSecondary} font-bold`}>รับคูปอง 5฿</span></div>
+                                        <div className="text-[9px] text-stone-400 text-center w-1/2">ครบ 10 ครั้ง<br/><span className={`${currentTheme.textSecondary} font-bold`}>รับคูปอง 10฿</span></div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                            <div>
+                                <div className="flex justify-between items-end mb-2 px-1"><h4 className="font-bold text-xs text-stone-600 uppercase tracking-wider">คูปองของฉัน ({myCoupons.length})</h4></div>
+                                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar min-h-[90px]">
+                                    <AnimatePresence mode="popLayout">
+                                        {myCoupons.length > 0 ? (
+                                            myCoupons.map((coupon, idx) => (
+                                                <motion.div key={coupon.id} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className={`min-w-[140px] bg-white p-3 rounded-xl border shadow-sm flex flex-col justify-between relative overflow-hidden`} style={{ borderColor: 'rgba(0,0,0,0.05)' }}>
+                                                    <div><div className={`w-7 h-7 text-white rounded-lg flex items-center justify-center mb-2 shadow-sm ${currentTheme.secondary}`}><Icons.Gift className="w-4 h-4" /></div><p className="text-xs font-bold text-stone-800">{coupon.name}</p><p className="text-[9px] text-stone-400">{coupon.desc}</p></div>
+                                                    <button className="mt-2 w-full py-1 bg-stone-800 text-white text-[10px] rounded font-bold">กดใช้</button>
+                                                </motion.div>
+                                            ))
+                                        ) : (
+                                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full bg-white border-2 border-dashed border-stone-200 rounded-xl p-4 flex flex-col items-center justify-center text-stone-300"><Icons.Gift className="w-5 h-5 mb-1 opacity-50" /><span className="text-[10px]">ยังไม่มีคูปอง</span></motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-stone-200 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+                        <button className="w-full py-3.5 bg-stone-800 text-white hover:bg-stone-900 rounded-xl font-bold shadow-lg transition-colors flex items-center justify-center gap-2 text-sm focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"><Icons.Scan className="w-4 h-4" /> สแกนเช็คอิน</button>
+                    </div>
+                </div>
+            );
+        };
+
+        const PhoneMockup = ({ currentTheme, onThemeChange }) => {
+            return (
+                <div className="flex flex-col items-center gap-6">
+                    <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative border-stone-800 bg-stone-800 border-[10px] rounded-[2.5rem] h-[600px] w-[300px] shadow-2xl overflow-hidden">
+                        <div className="rounded-[2rem] overflow-hidden w-full h-full bg-white relative">
+                            <DemoApp currentTheme={currentTheme} />
+                        </div>
+                    </motion.div>
+                    <div className="flex items-center gap-3 bg-white p-2 rounded-full shadow-lg border border-stone-100">
+                        <span className="text-xs font-bold text-stone-500 pl-2">ลองเปลี่ยนธีม:</span>
+                        {THEMES.map((theme) => (
+                            <button key={theme.id} onClick={() => onThemeChange(theme)} className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 ${theme.btnColor} ${currentTheme.id === theme.id ? 'ring-2 ring-offset-2 ring-stone-400 scale-110' : 'border-transparent opacity-80'}`} aria-label={`เปลี่ยนเป็นธีม ${theme.label}`} />
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const Hero = () => {
+            const [currentTheme, setCurrentTheme] = useState(THEMES[0]);
+            return (
+                <section id="main-content" className="relative pt-32 pb-20 overflow-hidden bg-paper">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                            <div className="flex-1 text-center lg:text-left z-10">
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+                                    <span className="inline-block px-4 py-1.5 rounded-full bg-teal-50 text-brand-teal text-xs font-bold tracking-wider mb-6 border border-teal-100 uppercase">Micro-CRM for Solopreneurs</span>
+                                    <h1 className="text-4xl lg:text-6xl font-bold text-stone-900 leading-snug lg:leading-normal mb-6">ระบบสะสมแต้มที่รันเองได้<br/><span className="text-brand-teal">เจ้าของไม่ต้องยุ่ง แค่ฟังเสียง 'ติ๊ง'</span></h1>
+                                    <p className="text-lg text-stone-600 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">เปลี่ยนขาจรเป็นขาประจำด้วยระบบ Zero-Touch Loyalty ที่ออกแบบมาเพื่อร้านค้าขนาดเล็กโดยเฉพาะ ไม่ต้องใช้ POS ไม่ต้องกดมือถือ</p>
+                                    <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                                        <button onClick={handleLineClick} className="px-6 sm:px-7 lg:px-8 py-3.5 sm:py-4 bg-brand-teal hover:bg-teal-800 text-white rounded-xl font-bold text-base lg:text-lg shadow-xl shadow-teal-900/10 transition-colors transform hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2 whitespace-nowrap">ทดลองฟรี 30 วัน</button>
+                                        <button onClick={() => document.querySelector('.phone-demo').scrollIntoView({behavior: 'smooth'})} className="px-6 sm:px-7 lg:px-8 py-3.5 sm:py-4 bg-white text-stone-700 border border-stone-200 hover:bg-stone-50 rounded-xl font-bold text-base lg:text-lg transition-colors flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2 whitespace-nowrap">ดูตัวอย่าง</button>
+                                    </div>
+                                    <p className="mt-6 text-sm text-stone-400">* ติดตั้งเสร็จใน 5 นาที • ลูกค้าไม่ต้องโหลดแอปเพิ่ม</p>
+                                </motion.div>
+                            </div>
+                            <div className="flex-1 relative w-full max-w-[320px] lg:max-w-none flex justify-center phone-demo">
+                                <div className="absolute top-0 right-10 w-64 h-64 bg-teal-200/50 rounded-full blur-3xl animate-float" aria-hidden="true"></div>
+                                <div className="absolute bottom-0 left-10 w-64 h-64 bg-amber-200/50 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}} aria-hidden="true"></div>
+                                <PhoneMockup currentTheme={currentTheme} onThemeChange={setCurrentTheme} />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const HowItWorks = () => (
+            <section id="how-it-works" className="py-24 bg-white">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16"><h2 className="text-3xl font-bold text-stone-900">เริ่มต้นง่ายๆ ใน 3 ขั้นตอน</h2><p className="text-stone-500 mt-4">ไม่ต้องมีความรู้เรื่อง Tech ก็ทำได้เอง</p></div>
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {[
+                            { step: "1", title: "สมัครใช้งาน", desc: "ลงทะเบียนร้านค้า และตั้งค่าธีมสีร้านของคุณใน 2 นาที", icon: <Icons.Smartphone className="w-8 h-8 text-brand-teal"/> },
+                            { step: "2", title: "ปริ้นท์ QR Code", desc: "ระบบจะสร้าง QR Code เฉพาะของร้านคุณ ให้คุณปริ้นท์แปะที่เคาน์เตอร์", icon: <Icons.Printer className="w-8 h-8 text-brand-teal"/> },
+                            { step: "3", title: "เปิดร้านได้เลย", desc: "ลูกค้าสแกนปุ๊บ ระบบทำงานปั๊บ คุณแค่รอฟังเสียงแจ้งเตือน", icon: <Icons.Zap className="w-8 h-8 text-brand-teal"/> }
+                        ].map((item, i) => (
+                            <div key={i} className="text-center p-6 rounded-2xl bg-stone-50 border border-stone-100">
+                                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border border-stone-100 relative">
+                                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-brand-dark text-white rounded-full flex items-center justify-center font-bold text-sm">{item.step}</div>
+                                    {item.icon}
+                                </div>
+                                <h3 className="text-xl font-bold text-stone-800 mb-2">{item.title}</h3>
+                                <p className="text-stone-500 text-sm leading-relaxed">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+
+        const PainPoints = () => (
+            <section id="pain-points" className="py-24 bg-stone-50">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <h2 className="text-3xl font-bold text-stone-900 mb-4">ทำไมร้านส่วนใหญ่ ถึงทำระบบสมาชิกไม่สำเร็จ?</h2>
+                        <p className="text-stone-500 text-lg">อุปสรรคเดิมๆ ที่ทำให้คุณเสียโอกาสสร้างลูกค้าประจำ</p>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {[
+                            { icon: <Icons.XCircle className="w-10 h-10 text-red-400" />, title: "POS แพงเกินจำเป็น", desc: "เครื่องละ 2-3 หมื่นบาท เกินความจำเป็นสำหรับร้านขนาดเล็กที่ยอดขายยังไม่นิ่ง" },
+                            { icon: <Icons.Smartphone className="w-10 h-10 text-red-400" />, title: "แอปทั่วไปยุ่งยาก", desc: "ต้องคอยหยิบมือถือมาสแกนให้ลูกค้า ตอนยุ่งๆ ทำไม่ทัน ลูกค้าก็ไม่อยากโหลดแอปใหม่" },
+                            { icon: <Icons.ShieldCheck className="w-10 h-10 text-red-400" />, title: "ลูกค้ามักลืมพก", desc: "บัตรกระดาษต้นทุนจม พิมพ์ทิ้งพิมพ์ขว้าง ลูกค้าทำหายก็จบกัน เก็บ Data ไม่ได้" }
+                        ].map((item, idx) => (
+                            <div key={idx} className="p-8 rounded-3xl bg-white border border-stone-100 hover:shadow-lg transition-all text-center md:text-left">
+                                <div className="mb-4 inline-block bg-red-50 p-3 rounded-2xl shadow-sm">{item.icon}</div>
+                                <h3 className="text-xl font-bold text-stone-900 mb-3">{item.title}</h3>
+                                <p className="text-stone-600 leading-relaxed text-sm">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+
+        const Features = () => (
+            <section id="features" className="py-24 bg-brand-dark text-white overflow-hidden relative">
+                <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                <div className="max-w-6xl mx-auto px-4 relative z-10">
+                    <div className="text-center mb-20"><span className="text-brand-teal font-bold tracking-widest text-sm uppercase">Why SnapPoint?</span><h2 className="text-3xl md:text-4xl font-bold mt-2">ทำงานอัตโนมัติ 100%</h2></div>
+                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                        <div className="space-y-8">
+                            <div className="flex gap-4">
+                                <div className="bg-white/10 p-3 rounded-xl h-fit"><Icons.Volume className="w-6 h-6 text-brand-teal" /></div>
+                                <div><h3 className="text-xl font-bold mb-2">Audio Feedback (ใช้หูแทนตา)</h3><p className="text-stone-400 text-sm leading-relaxed">เสียงแจ้งเตือน "ติ๊ง!" เมื่อลูกค้าสแกนสำเร็จ ให้คุณรู้ทันทีโดยไม่ต้องเงยหน้าจากแก้วกาแฟ</p></div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="bg-white/10 p-3 rounded-xl h-fit"><Icons.Gift className="w-6 h-6 text-brand-teal" /></div>
+                                <div><h3 className="text-xl font-bold mb-2">Multi-tier Rewards</h3><p className="text-stone-400 text-sm leading-relaxed">ระบบรางวัลขั้นบันได (ครบ 5 ได้เล็ก, ครบ 10 ได้ใหญ่) กระตุ้นให้ลูกค้ากลับมาถี่ขึ้น</p></div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="bg-white/10 p-3 rounded-xl h-fit"><Icons.Lock className="w-6 h-6 text-brand-teal" /></div>
+                                <div>
+                                    <h3 className="text-xl font-bold mb-2">ระบบความปลอดภัย (รันเบื้องหลัง)</h3>
+                                    <ul className="text-stone-400 text-sm leading-relaxed list-disc list-inside">
+                                        <li>Digital Shutter ปิดรับสแกนเมื่อร้านปิด</li>
+                                        <li>แจ้งเตือน LINE เจ้าของร้านทุกยอด</li>
+                                        <li>ระบบ Cooldown ป้องกันการปั๊มแต้ม</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white/5 rounded-3xl p-8 border border-white/10 backdrop-blur-sm relative text-center">
+                            <p className="text-lg italic text-stone-300 mb-6">"Slow Bar Café by คุณต้น เริ่มใช้ SnapPoint มา 2 เดือน ลูกค้าประจำกลับมาซื้อซ้ำบ่อยขึ้น เพราะเขาสนุกกับการสะสมแต้มที่ง่ายและรวดเร็ว"</p>
+                            <div className="flex items-center justify-center gap-3">
+                                <div className="w-10 h-10 bg-stone-700 rounded-full overflow-hidden flex items-center justify-center"><img src="https://api.dicebear.com/7.x/notionists/svg?seed=Ton" alt="Ton" /></div>
+                                <div className="text-left">
+                                    <p className="font-bold text-sm">คุณต้น</p>
+                                    <p className="text-xs text-stone-500">เจ้าของร้านกาแฟ Slow Bar</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+
+        const Pricing = () => (
+            <section id="pricing" className="py-24 bg-white relative">
+                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    {/* Break-even Calculator */}
+                    <div className="bg-brand-teal/5 border border-brand-teal/20 rounded-2xl p-6 mb-12 text-center max-w-2xl mx-auto">
+                        <p className="text-brand-teal font-bold text-lg mb-2">💡 ความคุ้มค่าที่คุณจับต้องได้</p>
+                        <p className="text-stone-600 text-sm">เพียงขายกาแฟเพิ่มได้แค่ <span className="font-bold text-stone-900 underline">13 แก้ว/เดือน</span> ก็คุ้มค่าระบบแล้ว (คิดจากกำไร 15 บาท/แก้ว)</p>
+                    </div>
+
+                    <div className="text-center mb-10">
+                        <h2 className="text-3xl font-bold text-stone-900">ราคาที่แฟร์ที่สุดสำหรับร้านเล็ก</h2>
+                        <p className="text-stone-500 mt-4">เริ่มต้นทดลองใช้ฟรี 30 วัน ไม่มีข้อผูกมัด</p>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row gap-8 items-start justify-center">
+                        
+                        {/* Starter Plan */}
+                        <div className="flex-1 w-full max-w-sm bg-white border-2 border-brand-teal rounded-3xl p-8 shadow-2xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                            <div className="absolute top-0 right-0 bg-brand-teal text-white text-xs font-bold px-4 py-1 rounded-bl-xl">แนะนำ</div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Starter Plan</h3>
+                            <p className="text-sm text-stone-500 mb-6">สำหรับร้านที่ต้องการระบบที่ "เวิร์ค" ทันที</p>
+                            
+                            <div className="flex items-baseline gap-1 mb-2">
+                                <span className="text-5xl font-bold text-stone-900">199</span>
+                                <span className="text-stone-500 font-medium">บาท / เดือน</span>
+                            </div>
+                            <p className="text-xs text-brand-teal mb-8 font-semibold bg-teal-50 inline-block px-2 py-1 rounded">🔥 โปรโมชั่น: สแกนได้ไม่จำกัด</p>
+
+                            <div className="space-y-4 mb-8">
+                                {[
+                                    "ทดลองใช้ฟรี 30 วันแรก",
+                                    "สแกนสะสมแต้มได้ไม่จำกัด",
+                                    "สมาชิกสูงสุด 1,000 คน",
+                                    "ระบบ Auto-Reply เสียงแจ้งเตือน",
+                                    "Dashboard ดูยอดรายวัน"
+                                ].map((feat, i) => (
+                                    <div key={i} className="flex items-center gap-3 text-sm text-stone-600">
+                                        <Icons.Check className="w-5 h-5 text-brand-teal flex-shrink-0" />
+                                        {feat}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button onClick={handleLineClick} className="w-full py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-stone-800 transition-colors shadow-lg focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2">
+                                เริ่มต้นใช้งานฟรี 30 วัน
+                            </button>
+                            <p className="text-center text-[10px] text-stone-400 mt-3">หลังจากนั้น 199 บาท/เดือน (ยกเลิกได้ตลอด)</p>
+                            
+                            <div className="mt-4 bg-teal-50 border border-teal-100 rounded-lg p-3 text-center">
+                                <p className="text-[10px] text-brand-teal font-semibold">🔒 ผู้สมัครช่วง Launch รับราคา 199฿ ตลอดชีพ</p>
+                            </div>
+                        </div>
+
+                        {/* Add-ons */}
+                        <div className="flex-1 w-full max-w-sm bg-stone-50 rounded-3xl p-8 border border-stone-200">
+                            <h3 className="text-xl font-bold text-stone-800 mb-4">Add-ons Store</h3>
+                            <p className="text-sm text-stone-500 mb-6">เลือกซื้อเพิ่มได้ตามใจเมื่อร้านโตขึ้น</p>
+                            
+                            <div className="space-y-3">
+                                {[
+                                    { name: "เปลี่ยนธีม & โลโก้", price: "+49", desc: "Custom Branding" },
+                                    { name: "ลบโลโก้ SnapPoint", price: "+99", desc: "White Label" },
+                                    { name: "ระบบระดับสมาชิก", price: "+119", desc: "Membership Tiers" },
+                                    { name: "ดึงข้อมูล Excel", price: "+129", desc: "Data Export" }
+                                ].map((addon, i) => (
+                                    <div key={i} className="flex justify-between items-center bg-white p-3 rounded-xl border border-stone-100 shadow-sm hover:border-brand-teal/50 transition-colors cursor-pointer">
+                                        <div>
+                                            <p className="font-bold text-stone-700 text-xs">{addon.name}</p>
+                                            <p className="text-[10px] text-stone-400">{addon.desc}</p>
+                                        </div>
+                                        <span className="text-xs font-bold text-brand-teal bg-teal-50 px-2 py-1 rounded">{addon.price} บ.</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-center text-xs text-stone-400 mt-6">* ไม่บังคับซื้อ จ่ายเท่าที่ใช้</p>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+        );
+
+        const FAQ = () => {
+            const [openIndex, setOpenIndex] = useState(null);
+            const faqs = [
+                { q: "ต้องซื้ออุปกรณ์เพิ่มไหม?", a: "ไม่ต้องครับ ใช้มือถือเครื่องเดิมของคุณ + ปริ้นท์กระดาษ QR Code 1 แผ่นแปะหน้าร้าน ก็เริ่มใช้งานได้เลย" },
+                { q: "ลูกค้าต้องโหลดแอปไหม?", a: "ไม่ต้องโหลดครับ ลูกค้าสแกนผ่าน LINE ที่มีอยู่แล้วได้เลย สะดวกและรวดเร็วมากลดโอกาสที่ลูกค้าจะปฏิเสธ" },
+                { q: "ทำไมราคาถูกจัง มีอะไรแอบแฝงไหม?", a: "เราตั้งใจทำราคา Micro-CRM ให้ร้านเล็กเข้าถึงได้ โดยตัดฟีเจอร์ซับซ้อนออก เหลือแต่สิ่งที่จำเป็น ราคานี้ไม่มีบวกเพิ่ม ยกเว้นคุณต้องการฟีเจอร์เสริมในอนาคต" },
+                { q: "อนาคตจะขึ้นราคาไหม?", a: "สำหรับลูกค้าที่สมัครในช่วง Launch Period นี้ เราการันตีล็อคราคา 199 บาทให้ตลอดไปครับ" }
+            ];
+
+            return (
+                <section className="py-24 bg-stone-50">
+                    <div className="max-w-3xl mx-auto px-4">
+                        <div className="text-center mb-12">
+                            <h2 className="text-2xl font-bold text-stone-900">คำถามที่พบบ่อย</h2>
+                        </div>
+                        <div className="space-y-4">
+                            {faqs.map((item, idx) => (
+                                <div key={idx} className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                                    <button 
+                                        onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                                        className="w-full flex justify-between items-center p-5 text-left font-bold text-stone-800 hover:bg-stone-50 transition"
+                                    >
+                                        {item.q}
+                                        <Icons.ChevronDown className={`w-5 h-5 transition-transform ${openIndex === idx ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    <AnimatePresence>
+                                        {openIndex === idx && (
+                                            <motion.div 
+                                                initial={{ height: 0, opacity: 0 }} 
+                                                animate={{ height: 'auto', opacity: 1 }} 
+                                                exit={{ height: 0, opacity: 0 }}
+                                                className="px-5 pb-5 text-stone-600 text-sm leading-relaxed"
+                                            >
+                                                {item.a}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const Footer = () => (
+            <footer className="bg-white border-t border-stone-100 py-12">
+                <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-stone-500">
+                    <div className="flex items-center gap-2"><div className="w-6 h-6 bg-brand-dark rounded flex items-center justify-center text-white font-brand font-bold text-xs">S</div><span className="font-bold text-stone-800">SnapPoint</span></div>
+                    <div className="flex gap-6"><a href="#" className="hover:text-brand-teal">Contact</a><a href="#" className="hover:text-brand-teal">Privacy</a><a href="#" className="hover:text-brand-teal">Terms</a></div>
+                    <div>© 2024 SnapPoint. Made for Solopreneurs.</div>
+                </div>
+            </footer>
+        );
+
+        const App = () => (
+            <div className="min-h-screen">
+                <Navbar />
+                <Hero />
+                <HowItWorks />
+                <PainPoints />
+                <Features />
+                <Pricing />
+                <FAQ />
+                <Footer />
+            </div>
+        );
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
