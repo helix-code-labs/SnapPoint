@@ -29,8 +29,11 @@ If no memory updates are needed, explicitly add a `No memory impact` line in the
 - `2026-02-18`: Implement API as Hono on Bun (`apps/api`) with initial route groups `/liff`, `/merchant`, `/admin`.
 - `2026-02-18`: Defer shared workspace packages (`packages/*`) to a later phase; prioritize app scaffolding and CI/build stability first.
 - `2026-02-18`: Track runtime versions via rolling channels in mise (`node = lts`, `bun = latest`) to reduce manual version bump overhead.
+- `2026-02-18`: Remove GitHub Actions CI/deploy workflows from the repository and keep workflow automation disabled for now.
 
 ## Change Log
+- `2026-02-18`: Removed `.github/workflows/ci.yml` and `.github/workflows/deploy.yml` by request; landing base path remains `/` in `apps/landing/vite.config.ts`.
+- `2026-02-18`: Updated `apps/landing/vite.config.ts` base path from `/SnapPoint/` to `/` to remove deployment URL prefix on landing app.
 - `2026-02-18`: Ran memory maintenance sync. No memory impact.
 - `2026-02-18`: Updated `.mise.toml` runtime strategy from fixed versions (`node 20.11.0`, `bun 1.1.0`) to rolling channels (`node = lts`, `bun = latest`) to stay on current stable tracks.
 - `2026-02-18`: Completed monorepo migration: moved landing app to `apps/landing`, added `customer-liff`, `merchant-web`, `admin-web`, and `api` apps, configured workspace (`pnpm-workspace.yaml`), turbo tasks (`turbo.json`), runtime pins (`.mise.toml`), and CI/deploy workflow updates; validated with `pnpm lint` and `pnpm build`.
@@ -40,7 +43,7 @@ If no memory updates are needed, explicitly add a `No memory impact` line in the
 - `2026-02-18`: Created `MEMORY.md` with update protocol, current state snapshot, and tracking sections.
 
 ## Known Constraints
-- Deployment target includes GitHub Pages for `apps/landing`; base path `/SnapPoint/` in `apps/landing/vite.config.ts` must be preserved unless deployment routing changes.
+- No CI/deploy GitHub Actions workflows are currently present in `.github/workflows/`.
 - Legacy reference exists in `legacy_backup/` and should not receive new feature work.
 - Shared package layer is intentionally not created yet; cross-app reuse is still minimal and duplicated in places.
 
