@@ -9,8 +9,13 @@ lerna-debug.log*
 
 node_modules
 dist
+**/dist
 dist-ssr
 *.local
+.turbo
+**/.turbo
+.bun
+*.tsbuildinfo
 
 # Editor directories and files
 .vscode/*
