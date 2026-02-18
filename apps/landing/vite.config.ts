@@ -5,4 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: '/SnapPoint/',
   plugins: [react()],
+  server: {
+    port: 5173,
+    strictPort: true,
+  },
 })
