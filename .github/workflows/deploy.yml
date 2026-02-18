@@ -36,12 +36,12 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: pnpm run build
+        run: pnpm --filter @snappoints/landing run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./apps/landing/dist
 
   deploy:
     environment:
