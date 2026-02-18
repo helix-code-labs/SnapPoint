@@ -1,0 +1,4 @@
+interface:
+  display_name: "Memory Updater"
+  short_description: "Strictly maintain MEMORY.md after implementation changes"
+  default_prompt: "Use $memory-updater to update MEMORY.md with strict section checks and explicit blockers for missing context."
