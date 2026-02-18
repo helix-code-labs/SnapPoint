@@ -1,110 +1,51 @@
-# SnapPoint Landing Page
+# SnapPoints Monorepo
 
-> "Zero-Touch Loyalty: เพิ่มลูกค้าประจำได้จริง โดยที่คุณไม่ต้องขยับตัว"
+Turborepo workspace for SnapPoints product surfaces:
+- `apps/landing` - marketing landing page (React + Vite)
+- `apps/customer-liff` - customer app on LINE LIFF (React + Vite)
+- `apps/merchant-web` - merchant web app (React + Vite)
+- `apps/admin-web` - admin web app (React + Vite)
+- `apps/api` - backend API (Hono + Bun)
 
-The marketing landing page for **SnapPoint**, a Micro-CRM loyalty point system designed for Thai coffee shops. This application serves as the primary entry point for potential customers, showcasing the product's "Zero-Touch" philosophy through interactive demos and clear value propositions.
+## Stack
+- Monorepo: Turborepo + pnpm workspaces
+- Web apps: React 19 + TypeScript + Vite
+- API: Hono on Bun runtime
+- Tooling: ESLint, TypeScript
 
-**Current Status:** Pilot Launch Ready (v9.0)
-
-## Overview
-
-This project is a single-page application (SPA) built to convert visitors into pilot users. It features:
-- **Interactive Demo:** A simulated experience of the "Zero-Touch" scanning process.
-- **Value Proposition:** Clear explanation of the 199฿/month flat rate model.
-- **Responsive Design:** Mobile-first approach optimized for all devices.
-- **Thai Language First:** All content is localized for the target market (Thai SME owners).
-
-## Tech Stack
-
-- **Framework:** [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-- **Animations:** [Framer Motion](https://www.framer.com/motion/)
-- **Icons:** [Lucide React](https://lucide.dev/)
-- **Deployment:** GitHub Pages (via GitHub Actions)
-
-## Local Development Setup
-
-### Prerequisites
-
-- **Node.js** (Latest LTS recommended)
-- **pnpm** (Package manager)
-
-### Installation
-
-1. Navigate to the landing page directory:
-   ```bash
-   cd apps/landing
-   ```
-
-2. Install dependencies:
+## Getting Started
+1. Install dependencies:
    ```bash
    pnpm install
    ```
+2. Run all apps in dev mode:
+   ```bash
+   pnpm dev
+   ```
+3. Build everything:
+   ```bash
+   pnpm build
+   ```
 
-### Running Locally
-
-Start the development server with Hot Module Replacement (HMR):
-
-```bash
-pnpm dev
-```
-
-The application will be available at `http://localhost:5173`.
-
-### Building for Production
-
-To create a production-ready build:
-
-```bash
-pnpm build
-```
-
-The output will be generated in the `dist/` directory.
-
-### Linting
-
-Ensure code quality and style consistency:
-
-```bash
-pnpm lint
-```
-
-## Project Structure
-
-```
-apps/landing/
-├── public/              # Static assets (favicons, etc.)
-├── src/
-│   ├── components/      # Shared UI components (DemoApp, PhoneMockup)
-│   ├── layout/          # Layout components (Navbar, Footer)
-│   ├── sections/        # Page sections (Hero, Features, Pricing, etc.)
-│   ├── constants/       # configuration constants
-│   ├── App.tsx          # Main application component
-│   └── main.tsx         # Entry point
-└── vite.config.ts       # Vite configuration
-```
+## Useful Commands
+- Lint all workspaces:
+  ```bash
+  pnpm lint
+  ```
+- Run only landing app:
+  ```bash
+  pnpm --filter @snappoints/landing dev
+  ```
+- Run only API app:
+  ```bash
+  pnpm --filter @snappoints/api dev
+  ```
 
 ## Deployment
+- GitHub Pages deployment is configured for `apps/landing` via `.github/workflows/deploy.yml`.
+- Build artifact path for landing is `apps/landing/dist`.
 
-This project is automatically deployed to GitHub Pages via GitHub Actions when changes are pushed to the `main` branch.
-
-- **Workflow File:** `.github/workflows/deploy.yml`
-- **Live Site:** [Insert Live URL Here]
-
-## Key Features Implemented
-
-- **Hero Section:** Introduction with primary CTA.
-- **Interactive Demo:** Simulates the LINE QR scan and "Ting!" audio feedback.
-- **Pain Points:** Addresses common issues (expensive POS, lost cards).
-- **Pricing:** Simple 199฿/month pricing display.
-- **FAQ:** Handles common objections (downloads, equipment).
-
-## Contributing
-
-1. **Branching:** Create a feature branch for your changes.
-2. **Conventions:** Follow the project's [Coding Guidelines](../../AGENTS.md).
-3. **Pull Request:** Submit a PR with a clear description of changes.
-
----
-
-**Maintained by:** HelixCodeLabs Team
+## Runtime Pinning
+Project runtime versions are pinned in `.mise.toml`:
+- Node.js `20.11.0`
+- Bun `1.1.0`
