@@ -17,6 +17,8 @@ If no memory updates are needed, explicitly add a `No memory impact` line in the
 - Runtime management: `.mise.toml` uses rolling channels (`node = lts`, `bun = latest`).
 - Apps: `apps/landing`, `apps/customer-liff`, `apps/merchant-web`, `apps/admin-web`, `apps/api`.
 - Key scripts: root `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm preview` via turbo.
+- Web deployments: Cloudflare Workers static assets via app-owned `apps/*/wrangler.toml` and per-app `cf:*` scripts.
+- CI/CD: GitHub Actions deployment workflows are removed; deploys run manually via root `deploy:*` scripts.
 - Codex custom slash command: `/memory-update` defined in `.codex/prompts/memory-update.md`.
 - Project focus: multi-surface SnapPoints platform (landing + customer LIFF + merchant/admin web + API).
 - No formal automated test runner configured yet.
@@ -30,8 +32,13 @@ If no memory updates are needed, explicitly add a `No memory impact` line in the
 - `2026-02-18`: Defer shared workspace packages (`packages/*`) to a later phase; prioritize app scaffolding and CI/build stability first.
 - `2026-02-18`: Track runtime versions via rolling channels in mise (`node = lts`, `bun = latest`) to reduce manual version bump overhead.
 - `2026-02-18`: Remove GitHub Actions CI/deploy workflows from the repository and keep workflow automation disabled for now.
+- `2026-02-19`: Standardize Cloudflare deployment as app-owned config (`apps/*/wrangler.toml`) with preview/prod script interfaces and manual deploy flow.
+- `2026-02-19`: Keep GitHub Actions deployment disabled in repository; use local/manual deploy commands instead.
 
 ## Change Log
+- `2026-02-19`: Migrated from root worker config to app-owned Cloudflare config for all web apps (`apps/landing`, `apps/customer-liff`, `apps/merchant-web`, `apps/admin-web`), removed `workers/landing-worker.ts` and root `wrangler.toml`, added per-app `cf:*` scripts, and expanded root deploy scripts.
+- `2026-02-19`: Removed `.github/workflows/deploy-workers.yml` by request and reverted documentation/memory references back to manual deploy flow.
+- `2026-02-19`: Added Cloudflare Workers deployment for landing: created `wrangler.toml`, added `workers/landing-worker.ts` with SPA fallback behavior, added root scripts (`build:landing`, `deploy:landing`, `deploy:landing:dry`), updated README deployment instructions.
 - `2026-02-18`: Removed `.github/workflows/ci.yml` and `.github/workflows/deploy.yml` by request; landing base path remains `/` in `apps/landing/vite.config.ts`.
 - `2026-02-18`: Updated `apps/landing/vite.config.ts` base path from `/SnapPoint/` to `/` to remove deployment URL prefix on landing app.
 - `2026-02-18`: Ran memory maintenance sync. No memory impact.
@@ -43,7 +50,7 @@ If no memory updates are needed, explicitly add a `No memory impact` line in the
 - `2026-02-18`: Created `MEMORY.md` with update protocol, current state snapshot, and tracking sections.
 
 ## Known Constraints
-- No CI/deploy GitHub Actions workflows are currently present in `.github/workflows/`.
+- Deploys are manual; Cloudflare credentials must be available in local CLI session (`wrangler login`) when running deploy commands.
 - Legacy reference exists in `legacy_backup/` and should not receive new feature work.
 - Shared package layer is intentionally not created yet; cross-app reuse is still minimal and duplicated in places.
 

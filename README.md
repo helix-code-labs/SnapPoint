@@ -42,10 +42,37 @@ Turborepo workspace for SnapPoints product surfaces:
   ```
 
 ## Deployment
-- GitHub Pages deployment is configured for `apps/landing` via `.github/workflows/deploy.yml`.
-- Build artifact path for landing is `apps/landing/dist`.
+Each web app deploys to Cloudflare Workers with app-owned config in `apps/*/wrangler.toml`.
+
+1. Authenticate once:
+   ```bash
+   pnpm wrangler login
+   ```
+2. Dry-run deploy per app:
+   ```bash
+   pnpm deploy:landing:dry
+   pnpm deploy:customer:dry
+   pnpm deploy:merchant:dry
+   pnpm deploy:admin:dry
+   ```
+3. Deploy preview env:
+   ```bash
+   pnpm deploy:landing:preview
+   pnpm deploy:customer:preview
+   pnpm deploy:merchant:preview
+   pnpm deploy:admin:preview
+   ```
+4. Deploy production:
+   ```bash
+   pnpm deploy:landing
+   pnpm deploy:customer
+   pnpm deploy:merchant
+   pnpm deploy:admin
+   ```
+
+Deploy is manual via `pnpm deploy:*` scripts (no GitHub Actions workflow in repo).
 
 ## Runtime Pinning
 Project runtime versions are pinned in `.mise.toml`:
-- Node.js `20.11.0`
-- Bun `1.1.0`
+- Node.js `lts`
+- Bun `latest`

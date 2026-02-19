@@ -1,0 +1,16 @@
+name = "snappoints-landing"
+compatibility_date = "2026-02-18"
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
+
+[env.preview]
+name = "snappoints-landing-preview"
+
+[env.production]
+name = "snappoints-landing"
+
+[[routes]]
+pattern = "snappoints.helix-code-labs.com"
+custom_domain = true

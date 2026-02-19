@@ -1,0 +1,12 @@
+name = "snappoints-admin-web"
+compatibility_date = "2026-02-18"
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
+
+[env.preview]
+name = "snappoints-admin-web-preview"
+
+[env.production]
+name = "snappoints-admin-web"

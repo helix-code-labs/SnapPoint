@@ -8,7 +8,23 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "preview": "turbo preview --filter=@snappoints/landing"
+    "preview": "turbo preview --filter=@snappoints/landing",
+    "build:landing": "pnpm --filter @snappoints/landing build",
+    "deploy:landing": "pnpm build:landing && pnpm --filter @snappoints/landing cf:deploy",
+    "deploy:landing:preview": "pnpm build:landing && pnpm --filter @snappoints/landing cf:deploy:preview",
+    "deploy:landing:dry": "pnpm build:landing && pnpm --filter @snappoints/landing cf:dry",
+    "build:customer": "pnpm --filter @snappoints/customer-liff build",
+    "deploy:customer": "pnpm build:customer && pnpm --filter @snappoints/customer-liff cf:deploy",
+    "deploy:customer:preview": "pnpm build:customer && pnpm --filter @snappoints/customer-liff cf:deploy:preview",
+    "deploy:customer:dry": "pnpm build:customer && pnpm --filter @snappoints/customer-liff cf:dry",
+    "build:merchant": "pnpm --filter @snappoints/merchant-web build",
+    "deploy:merchant": "pnpm build:merchant && pnpm --filter @snappoints/merchant-web cf:deploy",
+    "deploy:merchant:preview": "pnpm build:merchant && pnpm --filter @snappoints/merchant-web cf:deploy:preview",
+    "deploy:merchant:dry": "pnpm build:merchant && pnpm --filter @snappoints/merchant-web cf:dry",
+    "build:admin": "pnpm --filter @snappoints/admin-web build",
+    "deploy:admin": "pnpm build:admin && pnpm --filter @snappoints/admin-web cf:deploy",
+    "deploy:admin:preview": "pnpm build:admin && pnpm --filter @snappoints/admin-web cf:deploy:preview",
+    "deploy:admin:dry": "pnpm build:admin && pnpm --filter @snappoints/admin-web cf:dry"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -26,6 +42,7 @@
     "turbo": "^2.5.6",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "wrangler": "^4.66.0"
   }
 }

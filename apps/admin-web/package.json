@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cf:deploy": "wrangler deploy --env production --config wrangler.toml",
+    "cf:deploy:preview": "wrangler deploy --env preview --config wrangler.toml",
+    "cf:dry": "wrangler deploy --dry-run --env production --config wrangler.toml"
   },
   "dependencies": {
     "react": "^19.2.0",
